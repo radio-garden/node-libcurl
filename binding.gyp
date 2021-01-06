@@ -3,7 +3,7 @@
   #  npm install --curl-extra_link_args=true
   # or if using yarn:
   #  npm_config_curl_extra_link_args=true yarn install
-  # 
+  #
   'variables': {
     # Comma separated list
     'curl_include_dirs%': '',
@@ -42,7 +42,7 @@
           'libraries': ['<@(curl_libraries)']
         }],
         # Windows is only build statically
-        # In the future we can add support for other build types 
+        # In the future we can add support for other build types
         ['OS=="win"', {
           'msvs_settings': {
             'VCCLCompilerTool': {
@@ -179,10 +179,10 @@
             'conditions': [
               ['curl_include_dirs==""', {
                 'OTHER_CPLUSPLUSFLAGS' : [
-                  '<!(<(curl_config_bin) --prefix)/include',
+                  '/usr/local/opt/curl/include',
                 ],
                 'OTHER_CFLAGS':[
-                  '<!(<(curl_config_bin) --prefix)/include',
+                  '/usr/local/opt/curl/include',
                 ],
               }],
             ],
@@ -224,7 +224,7 @@
             'action': [
               'install_name_tool',
               '-change',
-              '<!@(otool -D `curl-config --prefix`/lib/libcurl.dylib | sed -n 2p)',
+              '<!@(otool -D `curl-config --prefix`/local/opt/curl/lib/libcurl.dylib | sed -n 2p)',
               '@rpath/libcurl.dylib',
               '<(module_path)/<(module_name).node'
             ],
