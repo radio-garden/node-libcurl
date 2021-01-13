@@ -1,5 +1,5 @@
 {
-  "name": "node-libcurl",
+  "name": "@nxtedition/node-libcurl",
   "version": "2.3.0-0",
   "description": "The fastest http(s) client (and much more) for Node.js - Node.js bindings for libcurl",
   "keywords": [
