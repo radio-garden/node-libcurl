@@ -326,9 +326,9 @@ fi
 
 echo "Publish binary is: $PUBLISH_BINARY"
 
-# Configure Yarn cache
-mkdir -p ~/.cache/yarn
-yarn config set cache-folder ~/.cache/yarn
+# # Configure Yarn cache
+# mkdir -p ~/.cache/yarn
+# yarn config set cache-folder ~/.cache/yarn
 
 run_tests_electron=false
 has_display=$(xdpyinfo -display $DISPLAY >/dev/null 2>&1 && echo "true" || echo "false")
@@ -337,7 +337,7 @@ if [ -n "$ELECTRON_VERSION" ]; then
   runtime='electron'
   dist_url='https://electronjs.org/headers'
   target="$ELECTRON_VERSION"
-  
+
   # enabled always temporarily
   is_electron_lt_5=1
   # is_electron_lt_5=0
@@ -348,7 +348,7 @@ if [ -n "$ELECTRON_VERSION" ]; then
   # https://github.com/electron/electron/issues/17972
   if [[ "$(uname)" == "Darwin" || $is_electron_lt_5 -eq 1 && $has_display == "true" ]]; then
     run_tests_electron=true
-    yarn global add electron@${ELECTRON_VERSION} --network-timeout 300000
+    pnpm add -g electron@${ELECTRON_VERSION} --network-timeout 300000
   fi
 
   # A possible solution to the above issue is the following,
@@ -369,12 +369,12 @@ elif [ -n "$NWJS_VERSION" ]; then
   dist_url=''
   target="$NWJS_VERSION"
 
-  yarn global add nw-gyp nw@$target
+  pnpm add -g nw-gyp nw@$target
 
   # On macOS node-pre-gyp uses node-webkit instead of nw, see:
   # https://github.com/mapbox/node-pre-gyp/blob/d60bc992d20500e8ceb6fe3242df585a28c56413/lib/testbinary.js#L43
   if [ "$(uname)" == "Darwin" ]; then
-    ln -s $(yarn global bin)/nw $(yarn global bin)/node-webkit
+    ln -s $(pnpm global bin)/nw $(pnpm global bin)/node-webkit
   fi
 
 else
@@ -410,7 +410,7 @@ echo "npm_config_dist_url=$npm_config_dist_url"
 echo "npm_config_target=$npm_config_target"
 echo "npm_config_target_arch=$npm_config_target_arch"
 
-yarn install --frozen-lockfile --network-timeout 300000
+pnpm install --network-timeout 300000
 
 if [ "$STOP_ON_INSTALL" == "true" ]; then
   set +uv
@@ -430,12 +430,12 @@ fi
 
 if [ "$RUN_TESTS" == "true" ]; then
   if [ -n "$ELECTRON_VERSION" ]; then
-    [ $run_tests_electron == "true" ] && yarn test:electron || echo "Tests for this version of electron were disabled"
+    [ $run_tests_electron == "true" ] && pnpm test:electron || echo "Tests for this version of electron were disabled"
   elif [ -n "$NWJS_VERSION" ]; then
     echo "No tests available for node-webkit (nw.js)"
   else
-    yarn ts-node -e "console.log(require('./lib').Curl.getVersionInfoString())" || true
-    yarn test
+    pnpm ts-node -e "console.log(require('./lib').Curl.getVersionInfoString())" || true
+    pnpm test
   fi
 fi
 
@@ -452,18 +452,18 @@ if [[ $PUBLISH_BINARY == true && $LIBCURL_RELEASE == $LATEST_LIBCURL_RELEASE ]];
     # --
     # Build and publish x64 package
     lipo build/Release/node_libcurl.node -thin x86_64 -output lib/binding/node_libcurl.node
-    npm_config_target_arch=x64 yarn pregyp package testpackage --verbose
+    npm_config_target_arch=x64 pnpm pregyp package testpackage --verbose
     npm_config_target_arch=x64 node scripts/module-packaging.js --publish \
-      "$(npm_config_target_arch=x64 yarn --silent pregyp reveal staged_tarball --silent)"
-  
+      "$(npm_config_target_arch=x64 pnpm --silent pregyp reveal staged_tarball --silent)"
+
     # Build and publish arm64 package.
     lipo build/Release/node_libcurl.node -thin arm64 -output lib/binding/node_libcurl.node
-    npm_config_target_arch=arm64 yarn pregyp package --verbose  # Can't testpackage for arm64 yet.
+    npm_config_target_arch=arm64 pnpm pregyp package --verbose  # Can't testpackage for arm64 yet.
     npm_config_target_arch=arm64 node scripts/module-packaging.js --publish \
-      "$(npm_config_target_arch=arm64 yarn --silent pregyp reveal staged_tarball --silent)"
+      "$(npm_config_target_arch=arm64 pnpm --silent pregyp reveal staged_tarball --silent)"
   else
-    yarn pregyp package testpackage --verbose
-    node scripts/module-packaging.js --publish "$(yarn --silent pregyp reveal staged_tarball --silent)"
+    pnpm pregyp package testpackage --verbose
+    node scripts/module-packaging.js --publish "$(pnpm --silent pregyp reveal staged_tarball --silent)"
   fi
 fi
 
@@ -472,17 +472,17 @@ fi
 INSTALL_RESULT=0
 if [[ $PUBLISH_BINARY == true ]]; then
   echo "Publish binary is true - Testing if it was published correctly"
-  INSTALL_RESULT=$(npm_config_fallback_to_build=false yarn install --frozen-lockfile --network-timeout 300000 > /dev/null)$? || true
+  INSTALL_RESULT=$(npm_config_fallback_to_build=false pnpm install --network-timeout 300000 > /dev/null)$? || true
 fi
 if [[ $INSTALL_RESULT != 0 ]]; then
   echo "Failed to install package from npm after being published"
-  node scripts/module-packaging.js --unpublish "$(yarn --silent pregyp reveal hosted_tarball --silent)"
+  node scripts/module-packaging.js --unpublish "$(pnpm --silent pregyp reveal hosted_tarball --silent)"
   false
 fi
 
 # Clean everything
 if [[ $RUN_PREGYP_CLEAN == true ]]; then
-  yarn pregyp clean
+  pnpm pregyp clean
 fi
 
 set +uv
