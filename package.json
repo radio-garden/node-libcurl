@@ -53,7 +53,6 @@
     "postinstall": "node scripts/postinstall",
     "lint": "eslint lib/ scripts/ test/ examples/",
     "pregyp": "node-pre-gyp",
-    "prepare": "husky install",
     "prettier": "prettier --write",
     "prettier:all": "yarn prettier lib/**/*.ts tools/**/*.js scripts/**/*.js test/**/*.ts examples/**/*.js",
     "test": "mocha --require ts-node/register test/**/*.spec.ts --reporter spec --timeout 60000",
