@@ -23,8 +23,8 @@ test/curl/upload.png
 coverage/
 
 # build
-dist
-build
+#dist
+#build
 
 # Ts
 tsconfig.tsbuildinfo
